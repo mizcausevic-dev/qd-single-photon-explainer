@@ -2,7 +2,7 @@
 seo_title: "Quantum-dot single-photon source, explained"
 seo_title_chars: 43
 meta_description: "A micropillar quantum-dot single-photon source in 34 seconds: one exciton, one wavepacket, and a synthetic Hanbury Brown–Twiss histogram you can scrub."
-meta_description_chars: 155
+meta_description_chars: 151
 slug: quantum-dot-single-photon-source
 primary_keyword: quantum-dot single-photon source
 secondary_keywords:

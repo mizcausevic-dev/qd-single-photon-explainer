@@ -30,6 +30,8 @@ jobs:
       - run: npm test
       - run: npm run build
       - name: Publish dist on the pages branch
+        id: branchpub
+        continue-on-error: true
         run: |
           set -euo pipefail
           remote="https://github.com/${GITHUB_REPOSITORY}.git"
@@ -74,13 +76,13 @@ jobs:
               -f "source[path]=/"
           fi
       - name: Fall back to an Actions deploy
-        if: steps.legacy.outcome == 'failure'
+        if: steps.legacy.outcome == 'failure' || steps.branchpub.outcome == 'failure'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
       - name: Deploy the Actions artifact
         id: deployment
-        if: steps.legacy.outcome == 'failure'
+        if: steps.legacy.outcome == 'failure' || steps.branchpub.outcome == 'failure'
         uses: actions/deploy-pages@v4
       - name: Record repository topics
         continue-on-error: true
