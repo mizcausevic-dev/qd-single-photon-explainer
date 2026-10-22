@@ -8,7 +8,7 @@ on:
       - .github/workflows/enable-pages.yml
 
 permissions:
-  contents: write
+  contents: read
   pages: write
 
 jobs:
@@ -20,45 +20,34 @@ jobs:
           CRSR_CLOUD: ${{ secrets.CRSR_CLOUD }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -u
+          set +e
           repo="${{ github.repository }}"
           if [ -n "${CRSR_CLOUD}" ]; then
             token="$CRSR_CLOUD"
-            echo "Using CRSR_CLOUD"
+            echo "token_source=CRSR_CLOUD"
           else
             token="$GITHUB_TOKEN"
-            echo "CRSR_CLOUD is unset. Using GITHUB_TOKEN."
+            echo "token_source=GITHUB_TOKEN"
           fi
-          call() {
-            local method="$1"
-            local code
+          try_method() {
+            method="$1"
             code=$(curl -sS -o /tmp/pages-api.json -w "%{http_code}" -X "$method" \
               -H "Authorization: Bearer ${token}" \
               -H "Accept: application/vnd.github+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
               "https://api.github.com/repos/${repo}/pages" \
               -d '{"build_type":"legacy","source":{"branch":"pages","path":"/"}}')
-            echo "${method} ${code}"
-            echo "::warning::pages ${method} ${code} $(tr '\n' ' ' < /tmp/pages-api.json | cut -c1-500)"
-            printf '%s' "$code"
+            body=$(tr '\n' ' ' < /tmp/pages-api.json | cut -c1-500)
+            echo "${method} ${code} ${body}"
+            echo "::warning title=pages-${method}::${code} ${body}"
+            printf '%s' "$code" > /tmp/last-code
           }
-          post=$(call POST)
-          if [ "$post" = "201" ] || [ "$post" = "409" ]; then
-            echo "Pages source request accepted (${post})"
-          else
-            put=$(call PUT)
+          try_method POST
+          post=$(cat /tmp/last-code)
+          if [ "$post" != "201" ] && [ "$post" != "409" ]; then
+            try_method PUT
+            put=$(cat /tmp/last-code)
             if [ "$put" != "200" ] && [ "$put" != "201" ]; then
-              echo "Could not select the pages branch"
               exit 1
             fi
           fi
-          curl -sS -o /tmp/topics.json -w "topics %{http_code}\n" -X PUT \
-            -H "Authorization: Bearer ${token}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${repo}/topics" \
-            -d '{"names":["quantum-optics","single-photon","quantum-dot","threejs","typescript","vite","hanbury-brown-twiss","scientific-visualization","webgl"]}' || true
-          curl -sS -o /tmp/repo.json -w "repo %{http_code}\n" -X PATCH \
-            -H "Authorization: Bearer ${token}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${repo}" \
-            -d '{"homepage":"https://mizcausevic-dev.github.io/qd-single-photon-explainer/"}' || true

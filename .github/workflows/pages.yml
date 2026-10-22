@@ -52,7 +52,10 @@ jobs:
             echo "pages branch already matches this build"
           else
             git -C _pages commit -m "Publish the static explainer"
-            git "${auth[@]}" -C _pages push "$remote" HEAD:pages
+            if ! git "${auth[@]}" -C _pages push "$remote" HEAD:pages > /tmp/git-push.txt 2>&1; then
+              echo "::error::git push failed: $(tr '\n' ' ' < /tmp/git-push.txt | cut -c1-500)"
+              exit 1
+            fi
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -75,15 +78,6 @@ jobs:
               -f "source[branch]=pages" \
               -f "source[path]=/"
           fi
-      - name: Fall back to an Actions deploy
-        if: steps.legacy.outcome == 'failure' || steps.branchpub.outcome == 'failure'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-      - name: Deploy the Actions artifact
-        id: deployment
-        if: steps.legacy.outcome == 'failure' || steps.branchpub.outcome == 'failure'
-        uses: actions/deploy-pages@v4
       - name: Record repository topics
         continue-on-error: true
         env:
