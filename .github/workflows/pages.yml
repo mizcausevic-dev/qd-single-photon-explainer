@@ -1,0 +1,94 @@
+name: Publish the pages branch
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - name: Publish dist on the pages branch
+        run: |
+          set -euo pipefail
+          remote="https://github.com/${GITHUB_REPOSITORY}.git"
+          auth=(-c "http.extraheader=AUTHORIZATION: bearer ${GITHUB_TOKEN}")
+          rm -rf _pages
+          mkdir _pages
+          git -C _pages init -b pages
+          git -C _pages config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C _pages config user.name "github-actions[bot]"
+          if git "${auth[@]}" -C _pages fetch --depth=1 "$remote" pages; then
+            git -C _pages checkout -B pages FETCH_HEAD
+          fi
+          find _pages -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a dist/. _pages/
+          touch _pages/.nojekyll
+          git -C _pages add -A
+          if git -C _pages diff --cached --quiet; then
+            echo "pages branch already matches this build"
+          else
+            git -C _pages commit -m "Publish the static explainer"
+            git "${auth[@]}" -C _pages push "$remote" HEAD:pages
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Serve Pages from the pages branch
+        id: legacy
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          repo="${{ github.repository }}"
+          if gh api "/repos/${repo}/pages" >/dev/null 2>&1; then
+            gh api --method PUT "/repos/${repo}/pages" \
+              -f build_type=legacy \
+              -f "source[branch]=pages" \
+              -f "source[path]=/"
+          else
+            gh api --method POST "/repos/${repo}/pages" \
+              -f build_type=legacy \
+              -f "source[branch]=pages" \
+              -f "source[path]=/"
+          fi
+      - name: Fall back to an Actions deploy
+        if: steps.legacy.outcome == 'failure'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Deploy the Actions artifact
+        id: deployment
+        if: steps.legacy.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+      - name: Record repository topics
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api --method PUT "/repos/${{ github.repository }}/topics" \
+            -H "Accept: application/vnd.github+json" \
+            --input - <<'JSON'
+          {"names":["quantum-optics","single-photon","quantum-dot","threejs","typescript","vite","hanbury-brown-twiss","scientific-visualization","webgl"]}
+          JSON

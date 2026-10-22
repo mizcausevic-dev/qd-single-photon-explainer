@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quantum-dot single-photon source · schematic</title>
+  <meta name="description" content="A 34-second scientific schematic of a semiconductor quantum-dot micropillar single-photon source, with idealized preparation and a synthetic coincidence histogram.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%230B1019' width='32' height='32'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23FFB703'/%3E%3C/svg%3E">
+</head>
+<body>
+  <a class="skip" href="#rail">Skip to explanation</a>
+  <div class="app" id="app" data-ready="false">
+    <header class="top">
+      <div>
+        <p class="eyebrow">34.000 s · 30 fps · frames 0–1019</p>
+        <h1>Semiconductor quantum-dot single-photon source</h1>
+        <p id="evidence-line">Scientific schematic with idealized preparation and synthetic detection.</p>
+      </div>
+      <p class="muted" id="color-note">Colors are explanatory encodings, not wavelengths. Representative device—not a fabrication design.</p>
+    </header>
+    <div class="body">
+      <section class="stage" id="stage" aria-label="Device animation">
+        <canvas id="webgl"></canvas>
+        <canvas id="fallback" aria-label="Two-dimensional device schematic"></canvas>
+        <div class="stage-copy">
+          <p class="shot-chip" id="shot-chip"></p>
+          <ul class="stage-labels" id="stage-labels"></ul>
+        </div>
+        <div class="status" id="status" role="status">Preparing the device schematic.</div>
+        <div class="status" id="error" role="alert" hidden></div>
+      </section>
+      <aside class="rail" id="rail" aria-label="Explanation">
+        <p class="sr-only" id="live" aria-live="polite"></p>
+        <h2 id="shot-title"></h2>
+        <div id="shot-body"></div>
+        <h3>Stages</h3>
+        <p id="stage-help"></p>
+        <ol class="stages" id="stages">
+          <li data-stage="1">Preparation</li>
+          <li data-stage="2">Radiative emission</li>
+          <li data-stage="3">Coupling into the collected mode</li>
+          <li data-stage="4">Optical transmission</li>
+          <li data-stage="5">Detector response</li>
+        </ol>
+        <h3>Selected transition · simplified model</h3>
+        <svg class="levels" viewBox="0 0 360 170" role="img" aria-labelledby="levels-title levels-desc">
+          <title id="levels-title">Two-level marker</title>
+          <desc id="levels-desc">A marker moves between the ground ket and the exciton ket. This is an authored schematic, not a calculated population curve.</desc>
+          <line id="level-x" x1="78" y1="40" x2="320" y2="40" stroke="#8291A5" stroke-width="2"></line>
+          <line id="level-g" x1="78" y1="124" x2="320" y2="124" stroke="#8291A5" stroke-width="2"></line>
+          <circle id="level-marker" cx="58" cy="124" r="7" fill="#E6E8EC"></circle>
+          <text x="16" y="46" fill="#E6E8EC" font-size="18">|X⟩</text>
+          <text x="16" y="130" fill="#E6E8EC" font-size="18">|G⟩</text>
+        </svg>
+        <p class="eq" id="theta"></p>
+        <p id="marker-readout"></p>
+        <p class="muted" id="dynamics-note"></p>
+        <h3>Exciton envelopes</h3>
+        <p class="legend"><span><i class="swatch electron"></i>Smaller envelope: electron</span><span><i class="swatch hole"></i>Larger envelope: hole</span></p>
+        <p id="confined-note"></p>
+        <h3>Reading this model</h3>
+        <ul id="reading"></ul>
+        <div id="histogram-teaser"></div>
+        <section id="histogram-section" hidden>
+          <h3 id="histogram-heading"></h3>
+          <p id="synthetic-line"></p>
+          <p id="axis-labels">Vertical axis: Coincidence counts. Horizontal axis: Detection-time difference / repetition period.</p>
+          <canvas id="histogram" aria-labelledby="histogram-heading axis-labels"></canvas>
+          <table>
+            <caption id="area-caption">Integrated coincidence counts in equal windows</caption>
+            <thead>
+              <tr><th>Window center (periods)</th><th>Half-width (periods)</th><th>Counts</th></tr>
+            </thead>
+            <tbody id="area-body"></tbody>
+          </table>
+          <p id="g2-readout"></p>
+          <p id="suppression-line"></p>
+          <p id="histogram-limits"></p>
+        </section>
+        <h3>Illustrated single-detector records</h3>
+        <p id="demo-note"></p>
+        <ol class="windows" id="demo-list"></ol>
+        <details id="model-details">
+          <summary>Synthetic event model, not device specifications</summary>
+          <ul id="model-list"></ul>
+          <p id="model-notes"></p>
+        </details>
+      </aside>
+    </div>
+    <div class="transport" role="region" aria-label="Playback">
+      <button type="button" id="play" aria-pressed="false">Play</button>
+      <button type="button" id="replay">Replay</button>
+      <div class="scrub-wrap">
+        <label for="scrub">Timeline, 0 to 34 seconds</label>
+        <input id="scrub" type="range" min="0" max="34" step="0.001" value="0" aria-describedby="time-readout">
+        <span id="time-readout">00:00.000 · frame 0</span>
+      </div>
+      <button type="button" id="mute" aria-pressed="false">Mute</button>
+      <label class="level">Music
+        <input id="music" type="range" min="0" max="1" step="0.01" value="0.75">
+      </label>
+      <label class="level">Effects
+        <input id="sfx" type="range" min="0" max="1" step="0.01" value="0.8">
+      </label>
+      <button type="button" id="view2d" aria-pressed="false">2D schematic</button>
+      <button type="button" id="fullscreen">Fullscreen</button>
+      <div class="jumps" role="group" aria-label="Jump to shot">
+        <button type="button" data-jump="0">Shot 1</button>
+        <button type="button" data-jump="5">Shot 2</button>
+        <button type="button" data-jump="10">Shot 3</button>
+        <button type="button" data-jump="17">Shot 4</button>
+        <button type="button" data-jump="25">Shot 5</button>
+        <button type="button" data-jump="33">Hold</button>
+      </div>
+      <details class="help">
+        <summary>Keyboard</summary>
+        <p>Space plays or pauses. R replays. Left and right seek one second when the scrubber is not focused. Home and End jump to the start and end. M mutes. F toggles fullscreen. Shot jumps are available for reduced-motion inspection. Nothing plays until you press play.</p>
+      </details>
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
