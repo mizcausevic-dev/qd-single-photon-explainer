@@ -52,7 +52,7 @@ jobs:
             echo "pages branch already matches this build"
           else
             git -C _pages commit -m "Publish the static explainer"
-            if ! git "${auth[@]}" -C _pages push "$remote" HEAD:pages > /tmp/git-push.txt 2>&1; then
+            if ! git -C _pages push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:pages > /tmp/git-push.txt 2>&1; then
               echo "::error::git push failed: $(tr '\n' ' ' < /tmp/git-push.txt | cut -c1-500)"
               exit 1
             fi

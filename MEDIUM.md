@@ -24,9 +24,9 @@ You can watch a full cycle of a quantum-dot single-photon source in half a minut
 
 This piece is the narration for a 34-second interactive schematic that refuses those shortcuts. Open it, press Play, and scrub. The same time always returns the same frame. Nothing here is a measured device, and the histogram says so in the caption.
 
-Live explainer: https://mizcausevic-dev.github.io/qd-single-photon-explainer/
+Source, and the built site on the `pages` branch: https://github.com/mizcausevic-dev/qd-single-photon-explainer
 
-Source: https://github.com/mizcausevic-dev/qd-single-photon-explainer
+Once GitHub Pages is set to the `pages` branch at `/`, the same build is served at https://mizcausevic-dev.github.io/qd-single-photon-explainer/
 
 ## What you are actually looking at
 

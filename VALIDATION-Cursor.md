@@ -39,6 +39,8 @@ Observed on the production preview:
 
 Console: no JavaScript exception was reported. The headless GPU logged `CONTEXT_LOST_WEBGL` during load and, on an earlier load, `Context Restored`, plus repeated ReadPixels stall warnings from the GL driver. Those warnings were not followed by an application error alert.
 
-## Not done
+## GitHub
 
-GitHub Pages was not deployed. `gh` is not logged in, and this run has no repository remote. The workflow file is present and unrun.
+The repository is https://github.com/mizcausevic-dev/qd-single-photon-explainer. The About line is set. Topics were not accepted by the API. The built site is commit `8c95855` on the branch `pages` (`index.html` plus `./assets/`). `npm test` and `npm run build` succeeded in Actions on commit `42cdf3f`.
+
+GitHub Pages returns HTTP 404. Creating the Pages site with the Actions token returned `403 Resource not accessible by integration`. `actions/deploy-pages` returned `404` with the message to enable Pages in settings. The branch is ready for Deploy from branch `pages`, folder `/`.

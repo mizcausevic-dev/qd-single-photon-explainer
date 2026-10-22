@@ -46,7 +46,7 @@ Cinematic 34-second schematic of a quantum-dot micropillar single-photon source,
 
 Topics: `quantum-optics`, `single-photon`, `quantum-dot`, `threejs`, `typescript`, `vite`, `hanbury-brown-twiss`, `scientific-visualization`, `webgl`
 
-`.github/workflows/pages.yml` runs `npm ci`, `npm test`, and `npm run build`, then publishes `dist` to a branch named `pages` and asks GitHub Pages to serve that branch at `/`. Vite `base` is `./`, so the built asset paths are relative. If the Actions token cannot change the Pages source, the workflow falls back to a Pages Actions deploy. The public preview URL is https://mizcausevic-dev.github.io/qd-single-photon-explainer/ once that job succeeds.
+`.github/workflows/pages.yml` runs `npm ci`, `npm test`, and `npm run build`, then publishes `dist` to a branch named `pages`. Vite `base` is `./`, so the built asset paths are relative. The Actions token cannot enable GitHub Pages (`403 Resource not accessible by integration`). The built site is already on `pages`. Serving it requires Deploy from branch `pages` at `/`, which produces https://mizcausevic-dev.github.io/qd-single-photon-explainer/
 
 The Medium draft is `MEDIUM.md`.
 
